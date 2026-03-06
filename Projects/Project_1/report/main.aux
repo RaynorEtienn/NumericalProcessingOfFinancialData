@@ -2,55 +2,44 @@
 \providecommand\hyper@newdestlabel[2]{}
 \providecommand\HyField@AuxAddToFields[1]{}
 \providecommand\HyField@AuxAddToCoFields[2]{}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {2}Dataset and Investment Universe}{1}{section.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Data}{1}{subsection.2.1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Stock Selection}{1}{subsection.2.2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Investment universe: ten selected CAC~40 constituents (row count confirms liquidity).}}{2}{table.caption.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {1}Dataset and Investment Universe}{1}{section.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Investment universe: ten CAC~40 constituents.}}{1}{table.caption.1}\protected@file@percent }
 \providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
-\newlabel{tab:tickers}{{1}{2}{Investment universe: ten selected CAC~40 constituents (row count confirms liquidity)}{table.caption.1}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Max-normalised daily closing prices of the ten selected CAC~40 stocks, 13~September~2022 -- 28~February~2023.}}{3}{figure.caption.2}\protected@file@percent }
-\newlabel{fig:scaled_close}{{1}{3}{Max-normalised daily closing prices of the ten selected CAC~40 stocks, 13~September~2022 -- 28~February~2023}{figure.caption.2}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Portfolio Construction}{3}{section.3}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Daily Returns}{3}{subsection.3.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Daily arithmetic price returns for the ten selected stocks. Concurrent spikes reflect systematic, market-wide events.}}{4}{figure.caption.3}\protected@file@percent }
-\newlabel{fig:returns}{{2}{4}{Daily arithmetic price returns for the ten selected stocks. Concurrent spikes reflect systematic, market-wide events}{figure.caption.3}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Correlation and Covariance Structure}{4}{subsection.3.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \emph  {Left}: sample correlation matrix. \emph  {Right}: sample covariance matrix $\Sigma \times 10^{-6}$. Warmer colours indicate stronger positive co-movement.}}{4}{figure.caption.4}\protected@file@percent }
-\newlabel{fig:corr_cov}{{3}{4}{\emph {Left}: sample correlation matrix. \emph {Right}: sample covariance matrix $\Sigma \times 10^{-6}$. Warmer colours indicate stronger positive co-movement}{figure.caption.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Lag-1 Autocorrelation of Daily Returns}{5}{subsection.3.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Lag-1 autocorrelation $\hat  {\rho }_j$ per stock. Blue bars: slight momentum (positive); red bars: mean reversion (negative).}}{5}{figure.caption.5}\protected@file@percent }
-\newlabel{fig:autocorr}{{4}{5}{Lag-1 autocorrelation $\hat {\rho }_j$ per stock. Blue bars: slight momentum (positive); red bars: mean reversion (negative)}{figure.caption.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Lag-1 autocorrelation estimates $\hat  {\rho }_j$ for the ten stocks.}}{5}{table.caption.6}\protected@file@percent }
-\newlabel{tab:autocorr}{{2}{5}{Lag-1 autocorrelation estimates $\hat {\rho }_j$ for the ten stocks}{table.caption.6}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}AR(1) Return Projections}{5}{subsection.3.4}\protected@file@percent }
-\newlabel{eq:ar1}{{3}{5}{AR(1) Return Projections}{equation.3.3}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Realised vs.\ AR(1)-projected daily returns for LVMH~(MC). The projection $\hat  {R}_{i+1} = -0.138 \cdot R_i$ correctly captures the direction of short-term mean reversion but with greatly reduced amplitude.}}{6}{figure.caption.7}\protected@file@percent }
-\newlabel{fig:ar1}{{5}{6}{Realised vs.\ AR(1)-projected daily returns for LVMH~(MC). The projection $\hat {R}_{i+1} = -0.138 \cdot R_i$ correctly captures the direction of short-term mean reversion but with greatly reduced amplitude}{figure.caption.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Dynamic Markowitz Optimal Weights}{6}{subsection.3.5}\protected@file@percent }
-\newlabel{eq:markowitz}{{4}{6}{Dynamic Markowitz Optimal Weights}{equation.3.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Daily Markowitz weights $\Omega _{i+1}$ over the investment period. Extreme excursions (e.g.\ $-7.2$ for SU on day~2) result from near-zero denominators $\mathbf  {1}'\Sigma ^{-1}\hat  {R}_{i+1}$ when projected returns are small.}}{6}{figure.caption.8}\protected@file@percent }
-\newlabel{fig:weights}{{6}{6}{Daily Markowitz weights $\Omega _{i+1}$ over the investment period. Extreme excursions (e.g.\ $-7.2$ for SU on day~2) result from near-zero denominators $\mathbf {1}'\Sigma ^{-1}\hat {R}_{i+1}$ when projected returns are small}{figure.caption.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Realised Portfolio Returns}{7}{subsection.3.6}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \emph  {Top}: daily realised returns of the Markowitz portfolio; the return range $[-507\%,\tmspace  +\thickmuskip {.2777em} +897\%]$ reflects extreme leverage. \emph  {Bottom}: cumulative performance (base~100). The Markowitz portfolio ends at $-1271.82$ versus $+122.89$ for the equal-weight benchmark.}}{7}{figure.caption.9}\protected@file@percent }
-\newlabel{fig:performance}{{7}{7}{\emph {Top}: daily realised returns of the Markowitz portfolio; the return range $[-507\%,\; +897\%]$ reflects extreme leverage. \emph {Bottom}: cumulative performance (base~100). The Markowitz portfolio ends at $-1271.82$ versus $+122.89$ for the equal-weight benchmark}{figure.caption.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Methodological Limitation: Look-Ahead Bias}{7}{subsection.3.7}\protected@file@percent }
-\newlabel{sec:bias}{{3.7}{7}{Methodological Limitation: Look-Ahead Bias}{subsection.3.7}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Risk and Performance Evaluation}{7}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Sharpe Ratio}{7}{subsection.4.1}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Sharpe ratio of the Markowitz portfolio (risk-free rate~$= 0$).}}{8}{table.caption.10}\protected@file@percent }
-\newlabel{tab:sharpe}{{3}{8}{Sharpe ratio of the Markowitz portfolio (risk-free rate~$= 0$)}{table.caption.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Upside Potential Ratio}{8}{subsection.4.2}\protected@file@percent }
-\newlabel{eq:upr}{{5}{8}{Upside Potential Ratio}{equation.4.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Maximum Drawdown}{8}{subsection.4.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \emph  {Top}: portfolio value with running maximum; peak (14~Oct~2022, green) and trough (27~Oct~2022, red) are marked. \emph  {Bottom}: full drawdown series.}}{9}{figure.caption.11}\protected@file@percent }
-\newlabel{fig:drawdown}{{8}{9}{\emph {Top}: portfolio value with running maximum; peak (14~Oct~2022, green) and trough (27~Oct~2022, red) are marked. \emph {Bottom}: full drawdown series}{figure.caption.11}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Additive Contribution to Portfolio Volatility}{9}{subsection.4.4}\protected@file@percent }
-\newlabel{eq:vol_decomp}{{7}{9}{Additive Contribution to Portfolio Volatility}{equation.4.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Additive contribution $C_j$ of each stock to portfolio daily volatility $\sigma _p = 0.0686$ (evaluated at time-averaged weights). All contributions are positive: even short positions amplify portfolio risk.}}{10}{figure.caption.12}\protected@file@percent }
-\newlabel{fig:vol_contrib}{{9}{10}{Additive contribution $C_j$ of each stock to portfolio daily volatility $\sigma _p = 0.0686$ (evaluated at time-averaged weights). All contributions are positive: even short positions amplify portfolio risk}{figure.caption.12}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Full volatility decomposition at time-averaged weights. $\sigma _p = 0.0686$/day (annualised: $1.089$, i.e.\ 108.9\% per year).}}{10}{table.caption.13}\protected@file@percent }
-\newlabel{tab:vol}{{4}{10}{Full volatility decomposition at time-averaged weights. $\sigma _p = 0.0686$/day (annualised: $1.089$, i.e.\ 108.9\% per year)}{table.caption.13}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Conclusion}{11}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {paragraph}{Practical implications.}{11}{paragraph*.14}\protected@file@percent }
-\gdef \@abspage@last{12}
+\newlabel{tab:tickers}{{1}{1}{Investment universe: ten CAC~40 constituents}{table.caption.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Portfolio Construction}{1}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Daily Returns}{1}{subsection.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Daily arithmetic price returns for the ten selected stocks.}}{2}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:returns}{{1}{2}{Daily arithmetic price returns for the ten selected stocks}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Correlation and Covariance}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \emph  {Left}: sample correlation matrix. \emph  {Right}: covariance matrix ($\times 10^{-6}$). All pairwise correlations are positive.}}{2}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:corr_cov}{{2}{2}{\emph {Left}: sample correlation matrix. \emph {Right}: covariance matrix ($\times 10^{-6}$). All pairwise correlations are positive}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Lag-1 Autocorrelation}{2}{subsection.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Lag-1 autocorrelations $\hat  \rho _j$. Negative: mean reversion; positive: momentum.}}{2}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:autocorr}{{3}{2}{Lag-1 autocorrelations $\hat \rho _j$. Negative: mean reversion; positive: momentum}{figure.caption.4}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Lag-1 autocorrelation $\hat  \rho _j$ per stock.}}{3}{table.caption.5}\protected@file@percent }
+\newlabel{tab:autocorr}{{2}{3}{Lag-1 autocorrelation $\hat \rho _j$ per stock}{table.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}AR(1) Projections and Markowitz Weights}{3}{subsection.2.4}\protected@file@percent }
+\newlabel{eq:markowitz}{{1}{3}{AR(1) Projections and Markowitz Weights}{equation.2.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Daily Markowitz weights over the investment period. Extreme excursions arise when the AR(1) projected return is near zero.}}{3}{figure.caption.6}\protected@file@percent }
+\newlabel{fig:weights}{{4}{3}{Daily Markowitz weights over the investment period. Extreme excursions arise when the AR(1) projected return is near zero}{figure.caption.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Realised Portfolio Returns and Look-Ahead Bias}{3}{subsection.2.5}\protected@file@percent }
+\newlabel{sec:bias}{{2.5}{3}{Realised Portfolio Returns and Look-Ahead Bias}{subsection.2.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \emph  {Top}: daily portfolio returns (range $[-507\%,\tmspace  +\thickmuskip {.2777em} +897\%]$). \emph  {Bottom}: cumulative value; equal-weight benchmark shown in orange.}}{4}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:performance}{{5}{4}{\emph {Top}: daily portfolio returns (range $[-507\%,\; +897\%]$). \emph {Bottom}: cumulative value; equal-weight benchmark shown in orange}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {paragraph}{Look-ahead bias.}{4}{paragraph*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {3}Risk and Performance Evaluation}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Sharpe Ratio}{4}{subsection.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Sharpe ratio of the Markowitz portfolio.}}{4}{table.caption.9}\protected@file@percent }
+\newlabel{tab:sharpe}{{3}{4}{Sharpe ratio of the Markowitz portfolio}{table.caption.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Upside Potential Ratio}{4}{subsection.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Maximum Drawdown}{4}{subsection.3.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Cumulative value (top) and drawdown series (bottom). Peak ($+1181$, green) and trough ($-4340$, red) are marked.}}{5}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:drawdown}{{6}{5}{Cumulative value (top) and drawdown series (bottom). Peak ($+1181$, green) and trough ($-4340$, red) are marked}{figure.caption.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Additive Volatility Contributions}{5}{subsection.3.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Additive contribution $C_j$ per stock to portfolio daily volatility $\sigma _p = 0.0686$ (all positive, even short positions).}}{5}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:vol_contrib}{{7}{5}{Additive contribution $C_j$ per stock to portfolio daily volatility $\sigma _p = 0.0686$ (all positive, even short positions)}{figure.caption.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Volatility decomposition at time-averaged weights ($\sigma _p = 0.0686$/day, annualised $1.089 = 108.9\%$/year).}}{6}{table.caption.12}\protected@file@percent }
+\newlabel{tab:vol}{{4}{6}{Volatility decomposition at time-averaged weights ($\sigma _p = 0.0686$/day, annualised $1.089 = 108.9\%$/year)}{table.caption.12}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Conclusion}{6}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Remedies.}{6}{paragraph*.13}\protected@file@percent }
+\gdef \@abspage@last{6}

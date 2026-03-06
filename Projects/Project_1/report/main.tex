@@ -1,14 +1,11 @@
 % ============================================================
 %  Numerical Processing of Financial Data — Project Report
-%  Romain ETIENNE — Polytechnique/HEC Data & Finance
+%  Romain ETIENNE & Anirudh SUDHIR — Polytechnique/HEC Data & Finance
 %
 %  Compile with:  pdflatex main.tex  (run twice for correct refs)
-%
-%  IMPORTANT: Run the Jupyter notebook first so that all figures
-%  are exported to the figures/ subdirectory before compiling.
 % ============================================================
 
-\documentclass[11pt, a4paper]{article}
+\documentclass[10pt, a4paper]{article}
 
 % ---------- Encoding & fonts ----------
 \usepackage[T1]{fontenc}
@@ -17,8 +14,9 @@
 \usepackage{microtype}
 
 % ---------- Layout ----------
-\usepackage[top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm]{geometry}
+\usepackage[top=2.2cm, bottom=2.2cm, left=2.2cm, right=2.2cm]{geometry}
 \usepackage{parskip}
+\setlength{\parskip}{4pt}
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage{enumitem}
@@ -32,6 +30,7 @@
 \usepackage{array}
 \usepackage{float}
 \usepackage{caption}
+\captionsetup{font=small, skip=4pt}
 \usepackage{subcaption}
 \usepackage{xcolor}
 
@@ -41,369 +40,209 @@
 % ---------- Figures path ----------
 \graphicspath{{figures/}}
 
-% ---------- Page style ----------
-\pagestyle{fancy}
-\fancyhf{}
-\fancyhead[L]{\small Numerical Processing of Financial Data}
-\fancyhead[R]{\small R.~Etienne}
-\fancyfoot[C]{\thepage}
-\renewcommand{\headrulewidth}{0.4pt}
-
 % ---------- Section spacing ----------
-\titlespacing*{\section}{0pt}{1.4em}{0.6em}
-\titlespacing*{\subsection}{0pt}{1.0em}{0.4em}
+\titlespacing*{\section}{0pt}{1.0em}{0.3em}
+\titlespacing*{\subsection}{0pt}{0.7em}{0.2em}
 
 % ============================================================
 \begin{document}
 
-% ======================== TITLE PAGE ========================
-\begin{titlepage}
-  \centering
-  \vspace*{1.5cm}
+% ======================== TITLE ========================
+\begin{center}
+  {\small \scshape \'Ecole Polytechnique -- HEC Paris \quad|\quad Master Data \& Finance}\\[0.4em]
+  {\LARGE\bfseries Risk and Performance of a Dynamic Markowitz Portfolio\\[0.2em]
+   on CAC~40 Constituents}\\[0.6em]
+  {\normalsize
+    Romain \textsc{Etienne} \quad\textbullet\quad Anirudh \textsc{Sudhir}\\[0.2em]
+    Supervisor: M.~Garcin \quad|\quad March 2025}
+\end{center}
+\rule{\linewidth}{0.5pt}
 
-  {\large\scshape \'Ecole Polytechnique -- HEC Paris}\\[0.4em]
-  {\large Master Data \& Finance}
-
-  \vspace{2.5cm}
-
-  {\LARGE\bfseries Numerical Processing of Financial Data}\\[1em]
-  \rule{0.88\linewidth}{0.8pt}\\[0.6em]
-  {\Large Risk and Performance Assessment of a\\[0.3em]
-   Dynamic Markowitz Portfolio\\[0.3em]
-   on CAC~40 Constituents}\\[0.5em]
-  \rule{0.88\linewidth}{0.8pt}
-
-  \vspace{1.8cm}
-
-  {\large Romain \textsc{Etienne}}\\[0.5em]
-  {\normalsize Supervisor: M.~Garcin}
-
-  \vfill
-
-  {\normalsize Academic Year 2024--2025 \quad\textbullet\quad March 2025}
-\end{titlepage}
-
-\setcounter{page}{1}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Numerical Processing of Financial Data}
+\fancyhead[R]{\small Etienne \& Sudhir}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
 
 % ======================== ABSTRACT ========================
 \begin{abstract}
-We construct and evaluate a dynamic equity portfolio drawn from ten diversified
-constituents of the French CAC~40 index, using one-minute OHLC data over the period
-September~2022 -- February~2023 (120 trading days). Portfolio weights are rebalanced
-daily via a Markowitz mean--variance optimisation in which expected returns are proxied
-by an AR(1) forecast based on the lag-1 autocorrelation of each stock's daily returns.
-All pairwise correlations are positive (average $\approx 0.29$), reflecting common
-European equity exposure, while lag-1 autocorrelations lie in $[-0.168,\, 0.123]$.
-Because the optimisation is unconstrained, these weak signals produce extreme leverage
-(time-averaged absolute weights summing to $\approx 22$), which causes catastrophic
-realised performance: the portfolio value ends at $-1271.82$ (base~100) versus $+122.89$
-for the equal-weight benchmark. This result powerfully illustrates the dangers of
-combining unconstrained Markowitz optimisation with low-signal return forecasts and
-full-sample covariance estimation.
+\noindent
+We construct and evaluate a daily-rebalanced Markowitz portfolio on ten diversified
+CAC~40 constituents using one-minute OHLC data (September~2022 -- February~2023,
+$n=120$ trading days). Expected returns are proxied by AR(1) forecasts built from
+lag-1 autocorrelations $\hat\rho_j \in [-0.168, 0.123]$. The unconstrained optimisation
+produces extreme leverage ($\sum|\Omega_j| \approx 22$) that destroys capital: the
+portfolio ends at $-1271.82$ (base~100) versus $+122.89$ for the equal-weight benchmark.
+Ex-ante Sharpe is $0.96$ (annualised) vs.\ ex-post $0.44$; UPR~$= 0.32$; maximum
+drawdown~$= -467\%$. The exercise illustrates the dangers of combining unconstrained
+Markowitz with weak forecasts and full-sample covariance estimation.
 \end{abstract}
 
-% ======================== 1. INTRODUCTION ========================
-\section{Introduction}
-
-The assessment of portfolio risk and performance is a central problem in quantitative
-finance. The Markowitz (1952) mean--variance framework provides a tractable closed-form
-solution: given a vector of expected returns and a covariance matrix, the optimal weight
-vector that minimises variance subject to a target return (or, under the unit-sum
-constraint used here, that maximises the expected return for a given variance) is
-uniquely determined.
-
-In this project we instantiate a simplified Markowitz portfolio on the CAC~40 French
-blue-chip index, restricted to ten liquid and sector-diversified constituents over
-120 trading days (September~2022 -- February~2023). Expected returns are generated by
-a one-lag AR(1) model: for each stock $j$, the projected return at day $i+1$ is
-$\hat{R}_{i+1,j} = \hat{\rho}_j \, R_{i,j}$, where $\hat{\rho}_j$ is the sample
-lag-1 autocorrelation. Weights are recomputed daily and the portfolio is evaluated
-on four risk/performance metrics: Sharpe ratio, Upside Potential Ratio, maximum
-drawdown, and additive volatility contributions.
-
-The principal finding is that the combination of weak AR(1) signals, an unconstrained
-optimiser, and a full-sample covariance matrix leads to extreme leverage and to
-realised performance that is dramatically worse than a simple equal-weight strategy.
-This constitutes both a cautionary tale about unconstrained mean--variance optimisation
-and a concrete illustration of look-ahead bias.
-
-% ======================== 2. DATASET ========================
+% ======================== 1. DATASET ========================
 \section{Dataset and Investment Universe}
 
-\subsection{Data}
+The raw data consist of minute-frequency OHLC prices for all 40 CAC~40 constituents
+stored as \texttt{.xlsx} files. The analysis window 13~September~2022 -- 28~February~2023
+yields $n = 120$ trading days and $n-1 = 119$ daily returns per stock.
+Daily closing prices are obtained by retaining the last intraday quote of each session.
 
-The raw data consist of minute-frequency OHLC prices for all 40 CAC~40 constituents,
-stored as individual \texttt{.xlsx} files. After filtering to the window
-\texttt{[2022-09-01, 2023-03-01]}, the usable range is 13~September~2022 --
-28~February~2023, yielding $n = 120$ distinct trading days per stock and therefore
-$n-1 = 119$ daily return observations (of which 114 are used in the portfolio after
-the one-lag projection consumes one additional observation).
-
-Daily closing prices are obtained by keeping the \emph{last} available intraday quote
-for each stock on each calendar date.
-
-\subsection{Stock Selection}
-
-We retain ten stocks satisfying two criteria simultaneously:
-
-\begin{enumerate}[leftmargin=2em, label=(\roman*)]
-  \item \textbf{Liquidity}: the stock lies in the upper half of the row-count
-    distribution across all 40 tickers (all ten selected stocks have between 58{,}454
-    and 61{,}371 minute-bar observations, versus as few as $\sim$37{,}000 for illiquid
-    names such as Sodexo). Illiquid stocks are explicitly excluded as instructed.
-  \item \textbf{Sector diversification}: at most one stock is selected per broad
-    economic sector, preventing the portfolio from being dominated by a single
-    macroeconomic theme.
-\end{enumerate}
-
-The resulting investment universe is summarised in Table~\ref{tab:tickers}.
+We select ten liquid, sector-diversified stocks (Table~\ref{tab:tickers}).
+Liquidity is confirmed by row counts $\ge 58\,000$ minute-bars (the bottom quartile
+of the full CAC~40 falls below $\sim 40\,000$). At most one stock is taken per sector
+to avoid systematic factor concentration.
 
 \begin{table}[H]
 \centering
-\caption{Investment universe: ten selected CAC~40 constituents (row count confirms
-liquidity).}
+\caption{Investment universe: ten CAC~40 constituents.}
 \label{tab:tickers}
-\small
+\small\setlength{\tabcolsep}{5pt}
 \begin{tabular}{llll}
 \toprule
-\textbf{Ticker} & \textbf{Company} & \textbf{Sector} & \textbf{Row count} \\
+\textbf{Ticker} & \textbf{Company} & \textbf{Sector} & \textbf{Rows} \\
 \midrule
-MC   & LVMH Mo\"{e}t Hennessy Louis Vuitton & Luxury Goods                    & 61{,}371 \\
-BNP  & BNP Paribas                           & Banking                         & 60{,}911 \\
-AIR  & Airbus Group                          & Aerospace \& Defence            & 60{,}769 \\
-CS   & AXA                                   & Insurance                       & 60{,}150 \\
-ORA  & Orange                                & Telecommunications              & 59{,}821 \\
-TTE  & TotalEnergies                         & Energy                          & 59{,}410 \\
-SU   & Schneider Electric                    & Industrials \& Energy Transition & 59{,}394 \\
-DSY  & Dassault Syst\`emes                   & Enterprise Software             & 59{,}276 \\
-SAN  & Sanofi                                & Healthcare \& Pharmaceuticals   & 58{,}861 \\
-MT   & ArcelorMittal                         & Materials \& Steel              & 58{,}454 \\
+MC  & LVMH                    & Luxury Goods            & 61\,371 \\
+BNP & BNP Paribas              & Banking                 & 60\,911 \\
+AIR & Airbus                   & Aerospace \& Defence    & 60\,769 \\
+CS  & AXA                      & Insurance               & 60\,150 \\
+ORA & Orange                   & Telecoms                & 59\,821 \\
+TTE & TotalEnergies            & Energy                  & 59\,410 \\
+SU  & Schneider Electric       & Industrials             & 59\,394 \\
+DSY & Dassault Syst\`emes      & Enterprise Software     & 59\,276 \\
+SAN & Sanofi                   & Healthcare              & 58\,861 \\
+MT  & ArcelorMittal            & Materials               & 58\,454 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:scaled_close} shows the max-normalised closing prices of all ten stocks.
-All series broadly co-move---consistent with a shared systematic European equity
-component---yet individual trajectories diverge, confirming the diversification value
-of the sector-based selection. TotalEnergies and ArcelorMittal exhibit distinct
-commodity-driven dynamics relative to the technology and consumer names.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.92\textwidth]{fig_00_scaled_close}
-  \caption{Max-normalised daily closing prices of the ten selected CAC~40 stocks,
-           13~September~2022 -- 28~February~2023.}
-  \label{fig:scaled_close}
-\end{figure}
-
-% ======================== 3. PORTFOLIO CONSTRUCTION ========================
+% ======================== 2. PORTFOLIO CONSTRUCTION ========================
 \section{Portfolio Construction}
 
 \subsection{Daily Returns}
 
-Each stock's intraday quotes are aggregated to the daily scale by retaining the last
-close price of each trading session.  Arithmetic price returns are:
-\begin{equation}
-  R_{i,j} = \frac{P_{i,j} - P_{i-1,j}}{P_{i-1,j}},
-  \qquad 1 \le i \le n-1,\; 1 \le j \le 10.
-\end{equation}
-This yields a $119 \times 10$ matrix of daily returns. Figure~\ref{fig:returns} shows
-the time series for all ten stocks.
+Arithmetic daily returns $R_{i,j} = (P_{i,j} - P_{i-1,j})/P_{i-1,j}$ form a
+$119\times10$ matrix. Returns are approximately centred at zero with occasional large
+outliers (Figure~\ref{fig:returns}); concurrent spikes reflect systematic market events.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{fig_01_daily_returns}
-  \caption{Daily arithmetic price returns for the ten selected stocks.
-           Concurrent spikes reflect systematic, market-wide events.}
+  \caption{Daily arithmetic price returns for the ten selected stocks.}
   \label{fig:returns}
 \end{figure}
 
-Returns are approximately centred at zero with occasional large outliers, consistent
-with well-documented leptokurtosis in large-cap equity returns. Volatility clustering
-is also visible, suggesting GARCH-type dynamics that are not captured by our AR(1) model.
+\subsection{Correlation and Covariance}
 
-\subsection{Correlation and Covariance Structure}
-
-The sample correlation matrix and covariance matrix $\Sigma$ (estimated on the full
-sample) are displayed in Figure~\ref{fig:corr_cov}.
+Figure~\ref{fig:corr_cov} displays the sample correlation and covariance matrices.
+All 45 pairwise correlations are positive (average~$0.29$), reflecting a shared
+European equity systematic factor. The strongest links are MC--SU~(0.74) and
+BNP--CS~(0.64); Sanofi and Orange show the weakest co-movements, confirming their
+role as defensive diversifiers.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.96\textwidth]{fig_02_corr_cov_matrices}
-  \caption{\emph{Left}: sample correlation matrix. \emph{Right}: sample covariance
-           matrix $\Sigma \times 10^{-6}$. Warmer colours indicate stronger positive
-           co-movement.}
+  \caption{\emph{Left}: sample correlation matrix. \emph{Right}: covariance matrix
+           ($\times10^{-6}$). All pairwise correlations are positive.}
   \label{fig:corr_cov}
 \end{figure}
 
-All 45 pairwise correlations are positive, with an average of $0.29$.
-The strongest dependencies appear between industrially related pairs:
-MC--SU~(0.74), SU--DSY~(0.66), and BNP--CS~(0.64).
-Three pairs involving Sanofi are weakly negative: SAN--MT~($-0.11$),
-SAN--DSY~($-0.08$), and SAN--MC~($-0.05$), reflecting Sanofi's defensive, uncyclical
-nature. Orange (ORA), as a regulated utility, shows correlations below~0.37 with all
-other stocks. The absence of truly negative correlations is typical for within-index
-universes and limits the diversification achievable by any long-only allocation.
+\subsection{Lag-1 Autocorrelation}
 
-\subsection{Lag-1 Autocorrelation of Daily Returns}
-
-For each stock $j$, the lag-1 autocorrelation of daily returns is:
-\begin{equation}
-  \hat{\rho}_j
-  = \frac{\displaystyle\sum_{i=2}^{n-1}\bigl(R_{i,j}-\bar{R}_j\bigr)
-    \bigl(R_{i-1,j}-\bar{R}_j\bigr)}
-         {\displaystyle\sum_{i=1}^{n-1}\bigl(R_{i,j}-\bar{R}_j\bigr)^{2}}.
-\end{equation}
+The lag-1 autocorrelation $\hat\rho_j$ is estimated for each stock (Table~\ref{tab:autocorr},
+Figure~\ref{fig:autocorr}). Values lie in $[-0.168, 0.123]$: seven stocks show mean
+reversion (negative, consistent with bid--ask bounce) and three show slight momentum.
+Despite their small magnitude, these are the sole AR(1) predictors used for expected-return
+forecasting.
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.72\textwidth]{fig_03_autocorrelation}
-  \caption{Lag-1 autocorrelation $\hat{\rho}_j$ per stock. Blue bars: slight momentum
-           (positive); red bars: mean reversion (negative).}
+  \includegraphics[width=0.65\textwidth]{fig_03_autocorrelation}
+  \caption{Lag-1 autocorrelations $\hat\rho_j$. Negative: mean reversion; positive: momentum.}
   \label{fig:autocorr}
 \end{figure}
 
-Results are in Table~\ref{tab:autocorr} and Figure~\ref{fig:autocorr}. All estimates lie
-in $[-0.168,\, 0.123]$. Seven stocks display negative autocorrelation (short-term mean
-reversion), consistent with bid--ask bounce and liquidity effects at the daily frequency,
-while BNP~(+0.110), MT~(+0.028), and ORA~(+0.123) show slight momentum. Despite their
-small magnitude, these coefficients represent the entire linear predictive signal
-available at a one-day lag and motivate their use as expected-return proxies.
-
 \begin{table}[H]
 \centering
-\caption{Lag-1 autocorrelation estimates $\hat{\rho}_j$ for the ten stocks.}
+\caption{Lag-1 autocorrelation $\hat\rho_j$ per stock.}
 \label{tab:autocorr}
 \small
-\begin{tabular}{llr}
+\begin{tabular}{lrllrlr}
 \toprule
-\textbf{Ticker} & \textbf{Company} & $\hat{\rho}_j$ \\
+Ticker & $\hat\rho_j$ & & Ticker & $\hat\rho_j$ & & \\[-2pt]
 \midrule
-MC  & LVMH                 & $-0.138$ \\
-TTE & TotalEnergies        & $-0.067$ \\
-SAN & Sanofi               & $-0.116$ \\
-AIR & Airbus               & $-0.095$ \\
-BNP & BNP Paribas          & $+0.110$ \\
-CS  & AXA                  & $-0.111$ \\
-SU  & Schneider Electric   & $-0.168$ \\
-DSY & Dassault Syst\`emes  & $-0.024$ \\
-MT  & ArcelorMittal        & $+0.028$ \\
-ORA & Orange               & $+0.123$ \\
+MC  & $-0.138$ & & BNP & $+0.110$ \\
+TTE & $-0.067$ & & CS  & $-0.111$ \\
+SAN & $-0.116$ & & SU  & $-0.168$ \\
+AIR & $-0.095$ & & DSY & $-0.024$ \\
+MT  & $+0.028$ & & ORA & $+0.123$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{AR(1) Return Projections}
+\subsection{AR(1) Projections and Markowitz Weights}
 
-Under a zero-mean AR(1) assumption, the conditional expectation of the return at day
-$i+1$ given day~$i$ is simply:
-\begin{equation}
-  \hat{R}_{i+1,j} = \hat{\rho}_j \cdot R_{i,j}.
-  \label{eq:ar1}
-\end{equation}
-This is the \emph{best linear one-step-ahead forecast} given a single lag. The method
-is parsimonious (one free parameter per stock), requires no future information, and is
-well-grounded: $\hat\rho_j$ captures the entirety of the linear dependence between
-$R_{i,j}$ and $R_{i+1,j}$ at lag~1. Figure~\ref{fig:ar1} illustrates the projection
-for LVMH~(MC, $\hat\rho = -0.138$): the projected series is a strongly attenuated,
-sign-reversed version of the previous day's return.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=0.90\textwidth]{fig_04_ar1_projection}
-  \caption{Realised vs.\ AR(1)-projected daily returns for LVMH~(MC).
-           The projection $\hat{R}_{i+1} = -0.138 \cdot R_i$ correctly captures
-           the direction of short-term mean reversion but with greatly reduced amplitude.}
-  \label{fig:ar1}
-\end{figure}
-
-\subsection{Dynamic Markowitz Optimal Weights}
-
-Let $\hat{R}_{i+1} = (\hat{R}_{i+1,1},\ldots,\hat{R}_{i+1,10})'$.
-The Markowitz weight vector under the unit-sum constraint is:
+Under a zero-mean AR(1), the expected return at day $i+1$ is
+$\hat{R}_{i+1,j} = \hat\rho_j \cdot R_{i,j}$.
+The Markowitz weight vector (unit-sum constraint, no leverage cap) is:
 \begin{equation}
   \Omega_{i+1}
-  = \frac{\Sigma^{-1}\hat{R}_{i+1}}{\mathbf{1}_{10}'\,\Sigma^{-1}\hat{R}_{i+1}}.
+  = \frac{\Sigma^{-1}\hat{R}_{i+1}}{\mathbf{1}'\Sigma^{-1}\hat{R}_{i+1}}.
   \label{eq:markowitz}
 \end{equation}
-No short-sale or leverage constraint is imposed; weights can be negative or very large.
-$\Sigma$ is the full-sample covariance matrix (see Section~\ref{sec:bias}).
+Because $|\hat\rho_j| \ll 1$ the denominator $\mathbf{1}'\Sigma^{-1}\hat{R}_{i+1}$
+is near zero on most days, producing extreme leverage (Figure~\ref{fig:weights}):
+time-averaged $\sum|\bar\Omega_j| \approx 22$, with individual mean weights
+ranging from $-3.86$ (AXA) to $+3.54$ (LVMH).
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{fig_05_dynamic_weights}
-  \caption{Daily Markowitz weights $\Omega_{i+1}$ over the investment period.
-           Extreme excursions (e.g.\ $-7.2$ for SU on day~2) result from near-zero
-           denominators $\mathbf{1}'\Sigma^{-1}\hat{R}_{i+1}$ when projected returns
-           are small.}
+  \caption{Daily Markowitz weights over the investment period. Extreme excursions
+           arise when the AR(1) projected return is near zero.}
   \label{fig:weights}
 \end{figure}
 
-Figure~\ref{fig:weights} reveals severe time-varying leverage. The time-averaged
-weights range from $-3.86$ (AXA, short) to $+3.54$ (LVMH, long), with the sum of
-absolute values averaging $\approx 22$---implying effective leverage of $22\times$.
-This is the direct consequence of dividing by the scalar
-$\mathbf{1}'\Sigma^{-1}\hat{R}_{i+1}$, which is small whenever $\hat{R}_{i+1}$ is
-small (i.e.\ whenever the AR(1) forecast is near zero, which is almost always the case
-given $|\hat\rho_j| \ll 1$).
+\subsection{Realised Portfolio Returns and Look-Ahead Bias}
+\label{sec:bias}
 
-\subsection{Realised Portfolio Returns}
-
-The portfolio's daily realised return is $r_{p,i+1} = \Omega_{i+1}' R_{i+1}$ and the
-cumulative value (base~100) evolves as $V_{i+1} = V_i \cdot (1 + r_{p,i+1})$.
+The daily realised portfolio return $r_{p,i+1} = \Omega_{i+1}'R_{i+1}$ is compounded
+into a cumulative value $V_{i+1} = V_i(1+r_{p,i+1})$ (Figure~\ref{fig:performance}).
+The portfolio ends at $\mathbf{-1271.82}$ (base~100) versus $+122.89$ for an
+equal-weight benchmark: extreme leverage turns even occasional forecast errors into
+losses exceeding available capital.
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{fig_06_portfolio_performance}
-  \caption{\emph{Top}: daily realised returns of the Markowitz portfolio; the return
-           range $[-507\%,\; +897\%]$ reflects extreme leverage.
-           \emph{Bottom}: cumulative performance (base~100). The Markowitz portfolio
-           ends at $-1271.82$ versus $+122.89$ for the equal-weight benchmark.}
+  \caption{\emph{Top}: daily portfolio returns (range $[-507\%,\; +897\%]$).
+           \emph{Bottom}: cumulative value; equal-weight benchmark shown in orange.}
   \label{fig:performance}
 \end{figure}
 
-The strategy suffers a catastrophic realised outcome. The portfolio value ends at
-$\mathbf{-1271.82}$ (base~100), while the equal-weight benchmark delivers a modest
-gain to $+122.89$. This catastrophe arises because extreme leverage means that even a
-small systematic misalignment between projected and realised return directions produces
-a loss exceeding the available capital.
+\paragraph{Look-ahead bias.}
+$\Sigma$ in \eqref{eq:markowitz} is estimated on the \emph{full} return sample,
+including data future to any given trading day — a textbook look-ahead bias.
+Here the bias cannot offset the absence of a real forecasting edge;
+a rolling-window $\Sigma$ would reduce bias without solving the fundamental leverage problem.
 
-\subsection{Methodological Limitation: Look-Ahead Bias}
-\label{sec:bias}
-
-The covariance matrix $\Sigma$ in equation~\eqref{eq:markowitz} is estimated on the
-\emph{entire} return sample, including data strictly in the future relative to any
-trading day~$i$. This is a textbook \textbf{look-ahead bias}: the weights at day~$i+1$
-implicitly encode future co-movement structure never available in live deployment.
-
-In the present case the bias acts paradoxically: although $\Sigma$ is full-sample, the
-unconstrained optimiser amplifies weak signals into such extreme leverage that the
-portfolio still destroys capital in-sample. The bias would inflate apparent performance
-if the strategy had a genuine edge; here it cannot rescue a strategy with no real edge.
-A rolling-window $\Sigma$ would reduce the bias but, without leverage constraints,
-would not fundamentally fix the strategy.
-
-% ======================== 4. RISK AND PERFORMANCE ========================
+% ======================== 3. RISK AND PERFORMANCE ========================
 \section{Risk and Performance Evaluation}
 
 \subsection{Sharpe Ratio}
 
-The Sharpe ratio (risk-free rate $= 0$) is $\mathrm{SR} = \bar{r}_p / \sigma_p$. We
-report two variants:
-\begin{itemize}[itemsep=1pt]
-  \item \textbf{Ex-ante}: using projected portfolio returns
-    $\hat{r}_{p,i+1} = \Omega_{i+1}'\hat{R}_{i+1}$.
-  \item \textbf{Ex-post}: using realised portfolio returns
-    $r_{p,i+1} = \Omega_{i+1}'R_{i+1}$.
-\end{itemize}
+Sharpe~$= \bar{r}_p / \sigma_p$ (risk-free rate~$= 0$). We report ex-ante (using
+projected returns $\hat{r}_{p,i+1} = \Omega_{i+1}'\hat{R}_{i+1}$) and ex-post
+(using realised returns).
 
 \begin{table}[H]
 \centering
-\caption{Sharpe ratio of the Markowitz portfolio (risk-free rate~$= 0$).}
+\caption{Sharpe ratio of the Markowitz portfolio.}
 \label{tab:sharpe}
+\small
 \begin{tabular}{lcc}
 \toprule
-\textbf{Variant} & \textbf{Daily SR} & \textbf{Annualised SR ($\times\sqrt{252}$)} \\
+Variant & Daily SR & Annualised ($\times\!\sqrt{252}$) \\
 \midrule
 Ex-ante  & $0.0604$ & $0.9595$ \\
 Ex-post  & $0.0277$ & $0.4394$ \\
@@ -411,208 +250,124 @@ Ex-post  & $0.0277$ & $0.4394$ \\
 \end{tabular}
 \end{table}
 
-The ex-ante annualised Sharpe of $0.96$ looks attractive on paper: the weights are
-constructed precisely to maximise the ratio $\Omega'\hat{R} / \sqrt{\Omega'\Sigma\Omega}$,
-so by design the projected Sharpe is as high as the AR(1) signal allows. When projected
-returns are replaced by realised returns, the Sharpe ratio drops to $0.44$. The ratio
-$0.44 / 0.96 \approx 0.46$ measures the fraction of the constructed signal that
-survives into realised outcomes---a concrete measure of forecast quality, entirely
-driven by the low magnitude of the autocorrelations.
-
-Both ratios are computed on a return series with daily standard deviation $\approx 97\%$
-(due to extreme leverage), making the annualised figures poorly interpretable in
-conventional portfolio management terms.
+The ex-ante SR of $0.96$ is by construction the maximum achievable from the AR(1)
+signal. The realised SR drops to $0.44$: only $\approx 46\%$ of the constructed
+signal survives in actual returns, a direct consequence of the low autocorrelation
+magnitudes. Both figures correspond to a daily standard deviation $\approx 97\%$
+(extreme leverage), making conventional Sharpe interpretation problematic.
 
 \subsection{Upside Potential Ratio}
 
-The Upside Potential Ratio (UPR) measures the payoff asymmetry between gains and losses:
-\begin{equation}
-  \mathrm{UPR}
-  = \frac{\mathbb{E}\!\left[\max(r_p,\;0)\right]}
-         {\sqrt{\mathbb{E}\!\left[\min(r_p,\;0)^{2}\right]}}.
-  \label{eq:upr}
-\end{equation}
-A value above~1 means gains outweigh losses on average in magnitude.
-
-For our portfolio:
 \[
-  \text{Mean positive return} = 0.212, \quad
-  \text{RMS negative return} = 0.655, \quad
-  \boxed{\mathrm{UPR} = 0.323.}
+  \mathrm{UPR}
+  = \frac{\mathbb{E}[\max(r_p,0)]}{\sqrt{\mathbb{E}[\min(r_p,0)^2]}}
+  = \frac{0.212}{0.655} = 0.323.
 \]
-The UPR is well below~1: average losses in magnitude ($0.655$ per losing day) are
-more than three times larger than average gains ($0.212$ per winning day). This
-strongly unfavourable asymmetry arises because leverage amplifies forecast errors
-disproportionately: when the AR(1) projection is correct, the gain is small (leverage
-is concentrated in the right direction, but $|\hat\rho| \ll 1$ means the expected
-return is tiny); when it is wrong---as it often is on large market moves---the loss
-is amplified by the same extreme leverage. The result is a left-skewed return
-distribution.
+The UPR well below~1 confirms heavily left-skewed returns: average losses ($0.655$
+per losing day) outweigh average gains ($0.212$) by a factor of~3. Leverage amplifies
+forecast errors disproportionately — when the AR(1) signal is wrong on a large
+market move the loss is multiplied by the full $22\times$ leverage.
 
 \subsection{Maximum Drawdown}
 
-The Maximum Drawdown quantifies the worst peak-to-trough decline in portfolio value:
-\begin{equation}
-  \mathrm{MDD} = \max_{t_1 < t_2} \frac{V(t_1) - V(t_2)}{V(t_1)}.
-\end{equation}
+\[
+  \mathrm{MDD} = -467.4\%, \quad
+  \text{Peak: 14~Oct~2022}, \quad
+  \text{Trough: 27~Oct~2022.}
+\]
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=0.92\textwidth]{fig_07_drawdown}
-  \caption{\emph{Top}: portfolio value with running maximum; peak (14~Oct~2022,
-           green) and trough (27~Oct~2022, red) are marked.
-           \emph{Bottom}: full drawdown series.}
+  \caption{Cumulative value (top) and drawdown series (bottom).
+           Peak ($+1181$, green) and trough ($-4340$, red) are marked.}
   \label{fig:drawdown}
 \end{figure}
 
-\[
-  \mathrm{MDD} = -467.4\%, \quad
-  \text{Peak: 14~October~2022}, \quad
-  \text{Trough: 27~October~2022.}
-\]
-The MDD exceeds $-100\%$ because the portfolio goes into deeply negative territory:
-the value reaches $-4339.93$ (base~100) from a peak of $+1181.17$, giving a
-peak-to-trough loss of $5521 / 1181 \approx 467\%$.
+The MDD exceeds $-100\%$ because the portfolio value becomes deeply negative.
+The critical two-week window (14--27~Oct~2022) coincided with peak Q4~2022
+European market stress (BoE emergency gilt intervention, ECB tightening climax,
+energy-price spike). Large intraday reversals during this period caused the AR(1)
+projections to be systematically wrong, and extreme leverage converted these
+errors into catastrophic losses.
 
-The timing---13 to 27~October~2022---corresponds to the climax of European financial
-market stress in Q4~2022, driven by the Bank of England's emergency gilt-market
-interventions, peak ECB tightening expectations, and surging energy-price uncertainty.
-During this two-week window, European equity returns exhibited unusually large and rapid
-reversals. The AR(1) projections, which are based on the previous day's return signal,
-systematically pointed in the wrong direction precisely during these high-volatility
-reversals. Combined with the extreme leverage positions, even a sequence of moderate
-forecast errors was sufficient to plunge the portfolio value into large negative territory.
+\subsection{Additive Volatility Contributions}
 
-\subsection{Additive Contribution to Portfolio Volatility}
-
-Portfolio variance decomposes as $\sigma_p^2 = \Omega'\Sigma\Omega =
-\sum_j \Omega_j (\Sigma\Omega)_j$. Dividing by $\sigma_p$ gives:
 \begin{equation}
   \sigma_p = \sum_{j=1}^{10} C_j, \qquad
-  C_j = \frac{\Omega_j \cdot (\Sigma\Omega)_j}{\sigma_p},
-  \label{eq:vol_decomp}
+  C_j = \frac{\bar\Omega_j \cdot (\Sigma\bar\Omega)_j}{\sigma_p},
 \end{equation}
-where $C_j > 0$ means stock~$j$ amplifies risk and $C_j < 0$ means it acts as a hedge.
-The decomposition is evaluated at the time-averaged weight vector $\bar{\Omega}$.
+evaluated at the time-averaged weight vector $\bar\Omega$ (Table~\ref{tab:vol},
+Figure~\ref{fig:vol_contrib}).
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=0.78\textwidth]{fig_08_vol_contributions}
-  \caption{Additive contribution $C_j$ of each stock to portfolio daily volatility
-           $\sigma_p = 0.0686$ (evaluated at time-averaged weights).
-           All contributions are positive: even short positions amplify portfolio risk.}
+  \includegraphics[width=0.72\textwidth]{fig_08_vol_contributions}
+  \caption{Additive contribution $C_j$ per stock to portfolio daily volatility
+           $\sigma_p = 0.0686$ (all positive, even short positions).}
   \label{fig:vol_contrib}
 \end{figure}
 
 \begin{table}[H]
 \centering
-\caption{Full volatility decomposition at time-averaged weights.
-         $\sigma_p = 0.0686$/day (annualised: $1.089$, i.e.\ 108.9\% per year).}
+\caption{Volatility decomposition at time-averaged weights
+         ($\sigma_p = 0.0686$/day, annualised $1.089 = 108.9\%$/year).}
 \label{tab:vol}
 \small
-\begin{tabular}{llrrrr}
+\begin{tabular}{llrrr}
 \toprule
-\textbf{Stock} & & $\bar{\Omega}_j$ & $(\Sigma\bar{\Omega})_j \times 10^{4}$ &
-$C_j$ & \textbf{Share of $\sigma_p$} \\
+Ticker & & $\bar\Omega_j$ & $C_j$ & Share \\
 \midrule
-MC  & LVMH                  & $+3.538$ & $+3.62$ & $0.01868$ & $27.24\%$ \\
-TTE & TotalEnergies          & $-1.338$ & $-1.60$ & $0.00313$ & $ 4.57\%$ \\
-SAN & Sanofi                 & $+2.773$ & $+3.10$ & $0.01255$ & $18.30\%$ \\
-AIR & Airbus                 & $+1.973$ & $+0.63$ & $0.00181$ & $ 2.63\%$ \\
-BNP & BNP Paribas            & $+3.055$ & $+1.94$ & $0.00862$ & $12.57\%$ \\
-CS  & AXA                    & $-3.855$ & $-2.84$ & $0.01596$ & $23.27\%$ \\
-SU  & Schneider Elec.         & $-3.261$ & $-1.49$ & $0.00709$ & $10.35\%$ \\
-DSY & Dassault Syst.          & $-0.143$ & $-1.16$ & $0.00024$ & $ 0.35\%$ \\
-MT  & ArcelorMittal           & $-0.362$ & $-0.85$ & $0.00045$ & $ 0.65\%$ \\
-ORA & Orange                  & $-1.378$ & $-0.02$ & $0.00004$ & $ 0.06\%$ \\
+MC  & LVMH               & $+3.538$ & $0.01868$ & $27.24\%$ \\
+CS  & AXA                & $-3.855$ & $0.01596$ & $23.27\%$ \\
+SAN & Sanofi             & $+2.773$ & $0.01255$ & $18.30\%$ \\
+BNP & BNP Paribas        & $+3.055$ & $0.00862$ & $12.57\%$ \\
+SU  & Schneider Elec.\   & $-3.261$ & $0.00709$ & $10.35\%$ \\
+TTE & TotalEnergies      & $-1.338$ & $0.00313$ & $ 4.57\%$ \\
+AIR & Airbus             & $+1.973$ & $0.00181$ & $ 2.63\%$ \\
+MT  & ArcelorMittal      & $-0.362$ & $0.00045$ & $ 0.65\%$ \\
+DSY & Dassault Syst.      & $-0.143$ & $0.00024$ & $ 0.35\%$ \\
+ORA & Orange             & $-1.378$ & $0.00004$ & $ 0.06\%$ \\
 \midrule
-\textbf{Total} & & & & $0.06857$ & $100.0\%$ \\
+    & \textbf{Total}     &          & $0.06857$ & $100.0\%$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The portfolio daily volatility is $\sigma_p = 0.0686$ (annualised: $\mathbf{108.9\%}$),
-confirming the massive leverage inherent in this unconstrained strategy. By comparison,
-the annualised volatility of the individual stocks is approximately $12$--$16\%$.
+Annualised portfolio volatility is $108.9\%$ vs.\ $\approx 12$--$16\%$ for individual
+stocks. Risk is concentrated in three names (MC + CS + SAN~$= 68.8\%$) and,
+crucially, \textbf{all $C_j > 0$} including short positions. Because all pairwise
+correlations are positive, short positions still move together with the portfolio in
+the direction of their own weight --- there is no true hedging effect.
 
-Risk is highly concentrated: LVMH contributes 27.2\%, AXA 23.3\%, and Sanofi 18.3\%,
-together accounting for 68.8\% of total $\sigma_p$. This concentration mirrors their
-large absolute mean weights ($|\bar\Omega| \ge 2.77$).
-
-A key observation is that \textbf{all contributions $C_j$ are positive}, including those
-of the short positions (AXA, SU, TTE, ORA). This is because $C_j = \Omega_j (\Sigma\Omega)_j / \sigma_p$:
-for a short position, $\Omega_j < 0$ and $(\Sigma\Omega)_j < 0$ (since the negative-weight
-stock is correlated with the negatively-weighted portfolio direction), so the product is
-positive. In other words, every position---long or short---is correlated with the
-portfolio in the direction of its own weight, and there is no genuine volatility
-cancellation. This is a structural feature of any all-positive-correlation universe
-fitted by unconstrained Markowitz: short positions are not hedges; they are simply
-opposite-direction bets that still contribute positively to risk.
-
-% ======================== 5. CONCLUSION ========================
+% ======================== 4. CONCLUSION ========================
 \section{Conclusion}
 
-We have constructed and evaluated a daily-rebalanced Markowitz portfolio on ten
-CAC~40 stocks, using AR(1) return forecasts as expected-return proxies. The main
-findings are as follows.
+Seven key findings:
 
-\begin{enumerate}[leftmargin=2em, label=(\roman*), itemsep=3pt]
-
-  \item \textbf{Cross-asset structure}: all pairwise correlations are positive
-    (average~$0.29$), confirming a shared European equity systematic factor. Sanofi
-    and Orange provide the lowest correlations with the rest of the universe, validating
-    their role as defensive diversifiers.
-
-  \item \textbf{Weak AR(1) signals}: lag-1 autocorrelations lie in $[-0.168,\, 0.123]$.
-    Seven stocks show mean reversion; three show slight momentum. The small magnitudes
-    of all $\hat\rho_j$ mean that AR(1) projections are essentially noise-dominated.
-
-  \item \textbf{Extreme leverage}: unconstrained Markowitz amplifies near-zero
-    projections into daily weight vectors with typical absolute sum of~$\approx 22$.
-    This is the direct mechanism by which a theoretically sound framework fails
-    catastrophically in practice.
-
-  \item \textbf{Sharpe ratio gap}: ex-ante annualised SR~$= 0.96$ vs.\ ex-post
-    annualised SR~$= 0.44$. Only 46\% of the constructed signal survives in realised
-    returns. This ratio is a useful measure of forecast quality.
-
-  \item \textbf{UPR of 0.32}: average losses ($-0.655$/event) outweigh gains
-    ($+0.212$/event) by a factor of~3, reflecting the strongly left-skewed return
-    distribution induced by leveraged AR(1) betting.
-
-  \item \textbf{Maximum drawdown of $-467\%$}: the portfolio ends at $-1272$ (base
-    ~100), having briefly reached $+1181$ before crashing. The critical episode
-    (14--27~Oct~2022) coincided with peak Q4~2022 European financial market stress.
-
-  \item \textbf{Volatility decomposition}: three stocks (LVMH, AXA, Sanofi) account
-    for 68.8\% of portfolio risk. All ten contributions are positive, confirming no
-    genuine diversification benefit in an all-positive-correlation universe under
-    unconstrained weights.
-
+\begin{enumerate}[leftmargin=2em,label=(\roman*),itemsep=1pt,topsep=2pt]
+  \item All pairwise correlations positive (avg~$0.29$); Sanofi and Orange are the
+        weakest-linked, most defensive names.
+  \item AR(1) autocorrelations in $[-0.168, 0.123]$: seven mean-reverting, three momentum.
+        Signals are near-zero and noise-dominated.
+  \item Unconstrained Markowitz amplifies near-zero forecasts into $22\times$ leverage,
+        the root cause of all subsequent failures.
+  \item Ex-ante SR~$0.96$ vs.\ ex-post SR~$0.44$ (annualised): only 46\% of the
+        optimised signal materialises in realised returns.
+  \item UPR~$= 0.32$: losses outweigh gains 3-to-1 in a left-skewed, leveraged distribution.
+  \item MDD~$= -467\%$, portfolio ends at $-1272$ (base~100); worst episode triggered
+        by Q4~2022 European market stress.
+  \item All ten volatility contributions are positive: no genuine diversification in an
+        all-positive-correlation universe under unconstrained weights.
 \end{enumerate}
 
-\paragraph{Practical implications.}
-This exercise powerfully illustrates two independent failure modes that compound. First,
-the AR(1) model provides too weak a signal: in efficient markets, $|\hat\rho| \ll 1$,
-so any strategy relying solely on lag-1 autocorrelations will struggle to generate
-consistent alpha. Second, the unconstrained Markowitz framework amplifies this
-near-zero signal into catastrophic leverage, a phenomenon well-documented since
-Black and Litterman (1992) and Ledoit and Wolf (2004). Two natural remedies are:
+\paragraph{Remedies.}
+Two straightforward improvements would transform this from a mathematical exercise into
+a deployable strategy: (i)~\textbf{leverage/position constraints} ($|\Omega_j|\le 0.2$)
+to prevent weak signals from generating extreme bets; and (ii)~\textbf{Ledoit--Wolf
+covariance shrinkage} to dampen $\|\Sigma^{-1}\hat{R}\|$ when $\hat{R}$ is small.
 
-\begin{itemize}[itemsep=1pt]
-  \item \textbf{Leverage or position constraints} (e.g.\ $|\Omega_j| \le 0.2$):
-    capping positions prevents the amplification of weak signals into extreme bets.
-  \item \textbf{Covariance regularisation} (e.g.\ Ledoit--Wolf shrinkage): reducing
-    the condition number of $\Sigma$ dampens the blow-up of $\Sigma^{-1}\hat{R}$
-    when $\hat{R}$ is small.
-\end{itemize}
-
-Both extensions would form natural improvements to the present framework and would
-bring the strategy closer to what one would confidently deploy with real capital.
-
-\bigskip
-\noindent
-\textit{Code availability: all computations are provided in the accompanying Jupyter
-notebook \texttt{main.ipynb}, following the guidelines of M.~Garcin.}
+\smallskip\noindent
+\textit{Code: all computations are in the accompanying notebook \texttt{main.ipynb}.}
 
 \end{document}
